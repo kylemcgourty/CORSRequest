@@ -6,34 +6,57 @@ console.log("new")
 
 class NumberRetriever{
     constructor(){
-        console.log("in construct")
+
         this.retrieveList()
     }
     retrieveList(){
-
-        // console.log("in RL")
-        // $.ajax({
-        //     url: "https://test.anytime.org/string.txt",
-        //     type: "GET",
-        //     dataType: "json",
-        //     contentType: "application/json; charset=utf-8",
-        // }).then((resp) => {
-        //     console.log("got data", resp);
-        // }).catch((error, second, third) => {
-        //     console.log("the error", error)
-        // })
 
         var request = this.makeCORSRequest("get", "https://test.anytime.org/string.txt");
 
         if (request){
             request.onload = function() {
-                console.log("got response", request.response)
-            };
-            request.onreadystatechange = function(){
-                console.log("the ready state and status", this.readyState, this.status)
-            };
+                this.filterResponse(request.response.split(/\s+/))
+            }.bind(this);
             request.send();
         }
+    }
+
+    filterResponse(numbers){
+
+        var integers_only = []
+
+        numbers.forEach((item)=> {
+            //attempt conversion to number
+            var number_candidate = Number(item)
+            //add to final array if a numer
+            if (!isNaN(number_candidate)) {
+                integers_only.push(number_candidate)
+            }
+
+        })
+
+        this.sortNumbers(integers_only)
+
+    }
+
+    sortNumbers(integers){
+
+        var sorted_integeres = integers.sort((a,b)=> a-b)
+
+        console.log("the sorted integers", sorted_integeres)
+
+        this.removeDuplicates(sorted_integeres)
+    }
+
+    removeDuplicates(sorted_integers){
+
+        var unique_integers =sorted_integers.filter((number, i)=> number != sorted_integers[i+1])
+
+        this.printResults(unique_integers)
+    }
+
+    printResults(processed_integers){
+        console.log("The lowest three integers:", processed_integers[0], processed_integers[1], processed_integers[2])
     }
 
     makeCORSRequest(method, url){
@@ -48,6 +71,7 @@ class NumberRetriever{
         }
         return xhr;
     }
+
 
 
 
